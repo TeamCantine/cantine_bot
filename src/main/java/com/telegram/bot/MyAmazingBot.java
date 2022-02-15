@@ -40,12 +40,12 @@ public class MyAmazingBot extends TelegramLongPollingBot {
 
             SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
 
-            System.out.println("User id: " + update.getMessage().getChatId().toString());
+            System.out.println("User id: " + update.getMessage().getChatId().toString() + " " + update.getMessage().getChat().getFirstName() + " " + update.getMessage().getChat().getLastName());
 
 
             message.setChatId(update.getMessage().getChatId().toString());
 
-            message.setText( " Hola");
+            message.setText( "Seleziona un cammando dal keyboard");
 
             // Create ReplyKeyboardMarkup object
             ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();

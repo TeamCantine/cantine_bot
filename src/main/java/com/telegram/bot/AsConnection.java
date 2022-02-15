@@ -54,53 +54,6 @@ public class AsConnection {
                 System.err.println(e);
             }
 
-
-
-
-/*
-            ResultSetMetaData rsmd = rs.getMetaData ();
-            int columnCount = rsmd.getColumnCount ();
-            String[] columnLabels = new String[columnCount];
-            int[] columnWidths = new int[columnCount];
-            for (int i = 1; i <= columnCount; ++i) {
-                columnLabels[i-1] = rsmd.getColumnLabel (i);
-                columnWidths[i-1] = Math.max (columnLabels[i-1].length(), rsmd.getColumnDisplaySize (i));
-            }
-
-            // Output the column headings.
-            for (int i = 1; i <= columnCount; ++i) {
-                System.out.print (rsmd.getColumnLabel(i) + " " );
-                System.out.println(columnWidths[i-1]);
-                System.out.print (" ");
-            }
-            System.out.println ();
-
-            // Output a dashed line.
-            StringBuffer dashedLine;
-            for (int i = 1; i <= columnCount; ++i) {
-                for (int j = 1; j <= columnWidths[i-1]; ++j)
-                    System.out.print ("-");
-                System.out.print (" ");
-            }
-            System.out.println ();
-
-            // Iterate throught the rows in the result set and output
-            // the columns for each row.
-            while (rs.next ()) {
-                for (int i = 1; i <= columnCount; ++i) {
-                    String value = rs.getString (i);
-                    if (rs.wasNull ())
-                        value = "<null>";
-                    System.out.print (value + " " +  columnWidths[i-1]);
-                    System.out.print (" ");
-                }
-                System.out.println ();
-            }
-
-*/
-
-
-
             conn2.close();
         } catch (SQLException e) {
             System.out.println("ERROR: " + e.getMessage());
