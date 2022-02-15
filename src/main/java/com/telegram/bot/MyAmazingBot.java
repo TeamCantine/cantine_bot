@@ -1,6 +1,7 @@
 package com.telegram.bot;
 
 
+import com.ibm.as400.vaccess.VSystemPool;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -27,33 +28,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
 
             if(message_text.equals("I miei Task")){
 
-                MyTask.getTaskKeyboard();
-
-
-                SendMessage message = new SendMessage();
-                message.setChatId(update.getMessage().getChatId().toString());
-
-                message.setText( "Lista dei task:  1) ... 2) ...");
-                InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-                List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-                List<InlineKeyboardButton> rowInline = new ArrayList<>();
-                InlineKeyboardButton c = new InlineKeyboardButton();
-                c.setText("Compito 1");
-                c.setCallbackData("compito1");
-                rowInline.add(c);
-
-                InlineKeyboardButton d = new InlineKeyboardButton();
-                d.setText("Compito 2");
-                d.setCallbackData("compito2");
-
-                rowInline.add(d);
-
-
-                // Set the keyboard to the markup
-                rowsInline.add(rowInline);
-                // Add it to the message
-                markupInline.setKeyboard(rowsInline);
-                message.setReplyMarkup(markupInline);
+                SendMessage message = MyTask.getTaskKeyboard(update);
 
 
                 try {
@@ -110,16 +85,11 @@ public class MyAmazingBot extends TelegramLongPollingBot {
                     SendMessage mes =   new SendMessage();
                     mes.setText("Ciao");
 
-
-                 //   execut();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
-
-
-
 
     }
 

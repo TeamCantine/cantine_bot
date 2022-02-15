@@ -1,6 +1,7 @@
 package com.telegram.bot;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -9,7 +10,7 @@ import java.util.List;
 
 public class MyTask {
 
-    public static void getTaskKeyboard(){
+    public static SendMessage getTaskKeyboard(Update update){
         SendMessage message = new SendMessage();
         message.setChatId(update.getMessage().getChatId().toString());
 
@@ -36,11 +37,7 @@ public class MyTask {
         message.setReplyMarkup(markupInline);
 
 
-        try {
-            execute(message); // Sending our message object to user
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        return message;
     }
 
 }
