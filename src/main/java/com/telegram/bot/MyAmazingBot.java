@@ -16,6 +16,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        
         // We check if the update has a message and the message has text
         if (update.hasMessage() && update.getMessage().hasText()) {
             String message_text = update.getMessage().getText();
