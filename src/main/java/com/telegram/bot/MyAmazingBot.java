@@ -23,13 +23,35 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
 
 
-            UserHelper.getUser();
 
+
+           String id = update.getMessage().getChatId().toString();
+
+            System.out.println(id);
+
+           // se null user non esiste
+            String user = UserHelper.getUser(id);
+
+            if(user == null){
+                String message_text = update.getMessage().getText();
+                SendMessage message = new SendMessage();
+                message.setChatId(id);
+                message.setText("Utente non abilitato");
+                try {
+                    execute(message);
+                    return;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             //authenticate user first
             performTextMessage(update);
     }
         else if (update.hasCallbackQuery()) {
             //authenticate user first
+
+
+
             performCallBackMessage(update);
         }
 
