@@ -1,6 +1,7 @@
 package com.telegram.bot;
 
 
+import com.telegram.api.Taskhelper;
 import com.telegram.api.UserHelper;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -22,16 +23,10 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         // We check if the update has a message and the message has text
         if (update.hasMessage() && update.getMessage().hasText()) {
 
-
-
-
            String id = update.getMessage().getChatId().toString();
-
             System.out.println(id);
-
            // se null user non esiste
-            String user = UserHelper.getUser(id);
-
+            String user = UserHelper.getUser(id, update);
             if(user == null){
                 String message_text = update.getMessage().getText();
                 SendMessage message = new SendMessage();
@@ -40,6 +35,17 @@ public class MyAmazingBot extends TelegramLongPollingBot {
                 try {
                     execute(message);
                     return;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            else if(user.equals("inserito")){
+                SendMessage message = new SendMessage();
+                message.setChatId(id);
+                message.setText("Benvenuto " + update.getMessage().getChat().getFirstName() + "\n Adesso puoi usare il bot");
+                try {
+                    execute(message);
+                //    return;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -75,6 +81,9 @@ public class MyAmazingBot extends TelegramLongPollingBot {
                 e.printStackTrace();
             }
         }
+        else if(message_text.equals(("tommal"))){
+            Taskhelper.getMyTask( update.getMessage().getChatId().toString());
+        }
 
 
         // here goes the condition for showing the right menu keyboard based on the user type
@@ -98,7 +107,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         Integer message_id = update.getCallbackQuery().getMessage().getMessageId();
         String chat_id = update.getCallbackQuery().getMessage().getChatId().toString();
 
-        if (call_data.equals("\ud83d\udcd7")) {
+        if (call_data.contains("\ud83d\udcd7")) {
             try {
                 execute(MyTask.getSingleTask(update));
             } catch (Exception e) {
