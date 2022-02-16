@@ -1,7 +1,10 @@
 package com.telegram.connection;
 
+import com.telegram.security.PropertiesHelper;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Properties;
 
 public class ConnectionFactory {
 
@@ -18,10 +21,11 @@ public class ConnectionFactory {
 	public static Connection getConnection() throws Exception {
 
 		if (conn == null) {
-			Class.forName("org.sqlite.JDBC");
-			// DriverManager.registerDriver(new JDBC());
-
-			conn = DriverManager.getConnection("jdbc:sqlite:" + DataBaseUtils.i().getDatabasePath());
+			Class.forName("com.ibm.as400.access.AS400JDBCDriver");
+			Properties prop = new Properties();
+			prop.setProperty("user", PropertiesHelper.getDatabaseUser());
+			prop.setProperty("password", PropertiesHelper.getDatabasePassword());
+			conn = DriverManager.getConnection("jdbc:as400://" + PropertiesHelper.getDatabaseAddress(), prop);
 		}
 
 		return conn;
