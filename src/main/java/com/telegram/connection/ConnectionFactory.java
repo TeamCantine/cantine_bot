@@ -23,9 +23,9 @@ public class ConnectionFactory {
 		if (conn == null) {
 			Class.forName("com.ibm.as400.access.AS400JDBCDriver");
 			Properties prop = new Properties();
-			prop.setProperty("user", PropertiesHelper.getDatabaseUser());
-			prop.setProperty("password", PropertiesHelper.getDatabasePassword());
-			conn = DriverManager.getConnection("jdbc:as400://" + PropertiesHelper.getDatabaseAddress(), prop);
+			prop.setProperty("user", "wrkjexp");
+			prop.setProperty("password", "wrkjexp");
+			conn = DriverManager.getConnection("jdbc:as400://" + "10.200.100.160", prop);
 		}
 
 		return conn;
