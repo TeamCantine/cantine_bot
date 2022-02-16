@@ -1,9 +1,15 @@
 package com.telegram.security;
 
+import com.telegram.connection.StatementFactory;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Properties;
+
+import static com.telegram.connection.StatementFactory.*;
 
 public class PropertiesHelper {
 
@@ -42,6 +48,15 @@ public class PropertiesHelper {
         System.out.println(prop.getProperty("database"));
         System.out.println(prop.getProperty("dbuser"));
         System.out.println(prop.getProperty("dbpassword"));
+
+       // try(Statement st = newReadOnlyStatement()){
+       //     try(ResultSet rs = st.executeQuery("SELECT * FROM WRK90MUL.GCCNT00F")){
+       //         while(rs.next())
+       //             System.out.println(rs.getString("CDCNCN"));
+       //     }
+       // }catch(Exception e){
+       //     e.printStackTrace();
+       // }
     }
 
 }

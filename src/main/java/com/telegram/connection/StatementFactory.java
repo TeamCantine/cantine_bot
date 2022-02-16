@@ -49,9 +49,7 @@ public class StatementFactory {
 	}
 
 	/**
-	 * chiude statement e resultSet senza lanciare eccezioni
-	 * 
-	 * @param s
+	 * chiude statement e resultSet senza lanciare eccezione
 	 */
 	public static void close(ResultSet result, Statement statement) {
 		close(result);
@@ -60,8 +58,6 @@ public class StatementFactory {
 
 	/**
 	 * chiude gli statement senza lanciare eccezioni
-	 * 
-	 * @param s
 	 */
 	public static void close(Statement... statements) {
 		for (Statement statement : statements) {
@@ -74,8 +70,6 @@ public class StatementFactory {
 
 	/**
 	 * chiude i resultSet senza lanciare eccezioni
-	 * 
-	 * @param s
 	 */
 	public static void close(ResultSet... results) {
 		for (ResultSet result : results) {
