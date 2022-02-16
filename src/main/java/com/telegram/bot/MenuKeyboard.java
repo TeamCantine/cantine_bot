@@ -11,7 +11,8 @@ import java.util.List;
 
 
 public class MenuKeyboard {
-    private static final String MY_TASKS = "I miei Task";
+    private static final String MY_UNCOMPLETED_TASKS = "\ud83d\uddc2\ufe0f I miei Task";
+    private static final String MY_COMPLETED_TASKS = "\u2705 Task completati";
 
     public static SendMessage SendMainKeyboardMenu(Update update){
 
@@ -30,13 +31,15 @@ public class MenuKeyboard {
         // Create the keyboard (list of keyboard rows)
         List<KeyboardRow> keyboard = new ArrayList<>();
         // Create a keyboard row
-        KeyboardRow row = new KeyboardRow();
+        KeyboardRow keyboard1 = new KeyboardRow();
         // Set each button, you can also use KeyboardButton objects if you need something else than text
-        row.add(MY_TASKS);
-
+        keyboard1.add(MY_UNCOMPLETED_TASKS);
+        keyboard1.add(MY_COMPLETED_TASKS);
         // Add the first row to the keyboard
-        keyboard.add(row);
+        keyboard.add(keyboard1);
         // Create another keyboard row
+
+
 
         // Set the keyboard to the markup
         keyboardMarkup.setKeyboard(keyboard);

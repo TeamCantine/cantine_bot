@@ -14,7 +14,10 @@ import static java.lang.Math.toIntExact;
 
 public class MyAmazingBot extends TelegramLongPollingBot {
 
-    private static final String MY_TASKS = "I miei Task";
+
+
+    private static final String MY_UNCOMPLETED_TASKS = "\ud83d\uddc2\ufe0f I miei Task";
+    private static final String MY_COMPLETED_TASKS = "\u2705 Task completati";
 
 
 
@@ -72,8 +75,8 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         String message_text = update.getMessage().getText();
         SendMessage message = new SendMessage();
 
-        if(message_text.equals(MY_TASKS)){
-            message = MyTask.getTaskKeyboard(update);
+        if(message_text.equals(MY_UNCOMPLETED_TASKS)){
+            message = MyTask.getUncompletedTaskKeyboard(update);
             try {
                 execute(message);
                 return;
@@ -81,8 +84,26 @@ public class MyAmazingBot extends TelegramLongPollingBot {
                 e.printStackTrace();
             }
         }
-        else if(message_text.equals(("tommal"))){
-            Taskhelper.getMyTask( update.getMessage().getChatId().toString());
+        else if(message_text.equals(MY_COMPLETED_TASKS)){
+           // Taskhelper.getMyUncompletedTask( update.getMessage().getChatId().toString());
+            message = MyTask.getCompetedTaskKeyboard(update);
+            try {
+                execute(message);
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        else if (message_text.contains("/mettidafare")){
+            Taskhelper.setTaskByIdCompleted(message_text.replace("/mettidafare", ""));
+            try {
+                message.setChatId(update.getMessage().getChatId().toString());
+                message.setText("Ok "+ update.getMessage().getChat().getFirstName()+ " modifico il task come 'Da Fare");
+                execute(message);
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
 
@@ -107,19 +128,29 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         Integer message_id = update.getCallbackQuery().getMessage().getMessageId();
         String chat_id = update.getCallbackQuery().getMessage().getChatId().toString();
 
-        if (call_data.contains("\ud83d\udcd7")) {
+        // Uncompleted
+        if (call_data.contains("\u274c")) {
             try {
                 execute(MyTask.getSingleTask(update));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        else if(call_data.equals("Completato")){
+        // Completed
+        else  if (call_data.contains("\u2705")) {
+            try {
+                execute(MyTask.getSingleTask(update));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        else if(call_data.contains("CompletatoC")){
             try {
                 SendMessage message = new SendMessage();
                 message.setChatId(chat_id);
                 message.setText("Ok "+ update.getCallbackQuery().getMessage().getChat().getFirstName() + " assegno il task come completato");
-
+                System.out.println("Mi arriva: " + call_data.replace("CompletatoC", ""));
+                Taskhelper.setTaskByIdCompleted(call_data.replace("CompletatoC", ""));
                 execute(message);
             } catch (Exception e) {
                 e.printStackTrace();
