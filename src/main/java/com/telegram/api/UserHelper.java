@@ -16,7 +16,6 @@ public static String getUser(String id, Update update){
     try(Statement st = newReadOnlyStatement()){
         try(ResultSet rs = st.executeQuery("SELECT * FROM WRKJEXP.ROLE_USER WHERE BOT_ID = '" + id + "'")){
     if(rs.next()) {
-        System.out.println(rs.getString("USER_NAME"));
         if(rs.getString("STATUS").equals("C")){
             return rs.getString("USER_NAME");
         }
@@ -44,17 +43,14 @@ private static void insertUser(Update update){
 
         String name = update.getMessage().getChat().getFirstName();
         String surname = update.getMessage().getChat().getLastName();
+        name = (name == null || name.length()<3 ? "NONAME" : name);
+        surname = (surname == null || surname.length()<3 ? "NOSURNAME": surname);
         System.out.println(name);
         // Chiavi
         st.setString(1, update.getMessage().getChatId().toString());
         st.setString(2, "C");
         st.setString(3, name);
         st.setString(4, surname);
-
-        if(name==null || surname == null){
-            st.setString(5, "WRKANDVIC");
-        }
-        else
         st.setString(5, ("WRK"+name.substring(0,3).toUpperCase()+surname.substring(0,3).toUpperCase()) );
 
 

@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.telegram.connection.StatementFactory.newReadOnlyStatement;
 
@@ -13,8 +14,7 @@ import static com.telegram.connection.StatementFactory.newReadOnlyStatement;
 public class Taskhelper {
 
 
-
-    public static ArrayList<String> getTaskDetails(String id){
+    public static ArrayList<String> getTaskDetails(String id) {
 
         String sql = "SELECT\n" +
                 "\tA.TIPO_OP,\n" +
@@ -24,27 +24,26 @@ public class Taskhelper {
                 "JOIN wrkjexp.ROLE_ROW AS B ON\n" +
                 "\tA.ID = B.HEAD_ID\n" +
                 "WHERE\n" +
-                "\tA.OPERATOR = (SELECT AS_USER FROM WRKJEXP.ROLE_USER WHERE BOT_ID =" + id+  ") ";
+                "\tA.OPERATOR = (SELECT AS_USER FROM WRKJEXP.ROLE_USER WHERE BOT_ID =" + id + ") ";
 
-    //    System.out.println(sql);
+        //    System.out.println(sql);
 
-        ArrayList<String> arr =   new ArrayList<String>();
+        ArrayList<String> arr = new ArrayList<String>();
 
-        try(Statement st = newReadOnlyStatement()){
-            try(ResultSet rs = st.executeQuery(sql)){
-                while(rs.next()) {
+        try (Statement st = newReadOnlyStatement()) {
+            try (ResultSet rs = st.executeQuery(sql)) {
+                while (rs.next()) {
 
-String msg = "(" + rs.getString("TIPO_OP") + ") "
-        + rs.getString("ROW_TYPE")  + " " +
-        rs.getString("CODE_VASE") + " " + rs.getString("QUANTITY");
-                   System.out.println(msg);
+                    String msg = "(" + rs.getString("TIPO_OP") + ") "
+                            + rs.getString("ROW_TYPE") + " " +
+                            rs.getString("CODE_VASE") + " " + rs.getString("QUANTITY");
+                    System.out.println(msg);
                     arr.add(msg);
                 }
             }
-        }         catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
 
 
         return arr;
@@ -53,25 +52,26 @@ String msg = "(" + rs.getString("TIPO_OP") + ") "
 
     /**
      * Return the uncompleted tasks (HEAD) file based on id passed as parameter
+     *
      * @param id
      * @return
      */
-    public static ArrayList<String> getMyUncompletedTask(String id){
+    public static ArrayList<String> getMyUncompletedTask(String id) {
         String sql = "SELECT * FROM WRKJEXP.ROLE_HEAD WHERE OPERATOR = (SELECT AS_USER FROM WRKJEXP.ROLE_USER WHERE BOT_ID=" + id + ") AND STATUS = '' ";
         //    System.out.println(sql);
-        ArrayList<String> arr =   new ArrayList<String>();
-        try(Statement st = newReadOnlyStatement()){
-            try(ResultSet rs = st.executeQuery(sql)){
-                while(rs.next()) {
+        ArrayList<String> arr = new ArrayList<String>();
+        try (Statement st = newReadOnlyStatement()) {
+            try (ResultSet rs = st.executeQuery(sql)) {
+                while (rs.next()) {
 
-                    String msg =rs.getString("ID") +  ")      " + rs.getString("CANTINA") + " "
+                    String msg = rs.getString("ID") + ")      " + rs.getString("CANTINA") + " "
                             + rs.getString("TIPO_OP");
 
-                    System.out.println(msg);
+                  //  System.out.println(msg);
                     arr.add(msg);
                 }
             }
-        }         catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return arr;
@@ -80,25 +80,26 @@ String msg = "(" + rs.getString("TIPO_OP") + ") "
 
     /**
      * Return the uncompleted tasks (HEAD) file based on id passed as parameter
+     *
      * @param id
      * @return
      */
-    public static ArrayList<String> getMycompletedTask(String id){
+    public static ArrayList<String> getMycompletedTask(String id) {
         String sql = "SELECT * FROM WRKJEXP.ROLE_HEAD WHERE OPERATOR = (SELECT AS_USER FROM WRKJEXP.ROLE_USER WHERE BOT_ID=" + id + ") AND STATUS = 'C' ";
         //    System.out.println(sql);
-        ArrayList<String> arr =   new ArrayList<String>();
-        try(Statement st = newReadOnlyStatement()){
-            try(ResultSet rs = st.executeQuery(sql)){
-                while(rs.next()) {
+        ArrayList<String> arr = new ArrayList<String>();
+        try (Statement st = newReadOnlyStatement()) {
+            try (ResultSet rs = st.executeQuery(sql)) {
+                while (rs.next()) {
 
-                    String msg =rs.getString("ID") +  ")      " + rs.getString("CANTINA") + " "
+                    String msg = rs.getString("ID") + ")      " + rs.getString("CANTINA") + " "
                             + rs.getString("TIPO_OP");
 
-                    System.out.println(msg);
+                 //   System.out.println(msg);
                     arr.add(msg);
                 }
             }
-        }         catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return arr;
@@ -107,37 +108,37 @@ String msg = "(" + rs.getString("TIPO_OP") + ") "
 
     /**
      * Given the task id returns the detail for that task (ROW)
+     *
      * @param taskId
      * @return
      */
-    public static  ArrayList<String>  getMyTaskDetail(String taskId){
+    public static ArrayList<String> getMyTaskDetail(String taskId) {
 
         String sql = "SELECT A.TIPO_OP , B.ROW_TYPE ,B.CODE_VASE, B.QUANTITY FROM wrkjexp.ROLE_HEAD AS A JOIN wrkjexp.ROLE_ROW AS B ON A.ID = B.HEAD_ID WHERE A.ID =" + taskId + "";
-          //  System.out.println(sql);
-        ArrayList<String> arr =   new ArrayList<String>();
+        //  System.out.println(sql);
+        ArrayList<String> arr = new ArrayList<String>();
 
-        try(Statement st = newReadOnlyStatement()){
-            try(ResultSet rs = st.executeQuery(sql)){
-                while(rs.next()) {
+        try (Statement st = newReadOnlyStatement()) {
+            try (ResultSet rs = st.executeQuery(sql)) {
+                while (rs.next()) {
 
-                    String msg =rs.getString("TIPO_OP") +  ")      " + rs.getString("ROW_TYPE") + " "
-                            + rs.getString("CODE_VASE") + " "+  rs.getString("QUANTITY")  ;
+                    String msg = rs.getString("TIPO_OP") + ")      " + rs.getString("ROW_TYPE") + " "
+                            + rs.getString("CODE_VASE") + " " + rs.getString("QUANTITY");
 
-                //    System.out.println(msg);
+                    //    System.out.println(msg);
                     arr.add(msg);
                 }
             }
-        }         catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
 
 
         return arr;
     }
 
 
-    public static void setTaskByIdCompleted(String taskId){
+    public static void setTaskByIdCompleted(String taskId) {
 
         String sql = "UPDATE wrkjexp.ROLE_HEAD SET STATUS = 'C' WHERE ID = ?";
 
@@ -155,7 +156,7 @@ String msg = "(" + rs.getString("TIPO_OP") + ") "
     }
 
 
-    public static void setTaskByIdNotCompleted(String taskId){
+    public static void setTaskByIdNotCompleted(String taskId) {
 
         String sql = "UPDATE wrkjexp.ROLE_HEAD SET STATUS = '' WHERE ID = ?";
 
@@ -173,7 +174,28 @@ String msg = "(" + rs.getString("TIPO_OP") + ") "
     }
 
 
+    public static List<String> getFieldsToModify() {
+
+        List<String> arr = new ArrayList<String>();
+
+        String sql = "SELECT * FROM WRKJEXP.ROLE_FIELD_LIST ";
 
 
+        try (Statement st = newReadOnlyStatement()) {
+            try (ResultSet rs = st.executeQuery(sql)) {
+                while (rs.next()) {
 
+                    String msg = rs.getString("FIDES");
+
+                    //    System.out.println(msg);
+                    arr.add(msg);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return arr;
+
+    }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 
 
 public class MenuKeyboard {
-    private static final String MY_UNCOMPLETED_TASKS = "\ud83d\uddc2\ufe0f I miei Task";
+    private static final String MY_UNCOMPLETED_TASKS = "\ud83d\uddc2\ufe0f To Do Task";
     private static final String MY_COMPLETED_TASKS = "\u2705 Task completati";
 
     public static SendMessage SendMainKeyboardMenu(Update update){
