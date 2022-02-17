@@ -95,7 +95,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
             }
         }
         else if (message_text.contains("/mettidafare")){
-            Taskhelper.setTaskByIdCompleted(message_text.replace("/mettidafare", ""));
+            Taskhelper.setTaskByIdNotCompleted(message_text.replace("/mettidafare", ""));
             try {
                 message.setChatId(update.getMessage().getChatId().toString());
                 message.setText("Ok "+ update.getMessage().getChat().getFirstName()+ " modifico il task come 'Da Fare");
@@ -169,10 +169,6 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         }
     }
 
-
-
-
-
     @Override
     public String getBotUsername() {
         // TODO
@@ -184,14 +180,5 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         // TODO
         return "5174941088:AAEFuzWWNKPwyyJQ_M53WlxRhoWrKVgsPXM";
     }
-
-
-
-
-
-
-
-
-
 
 }

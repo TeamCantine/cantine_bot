@@ -149,6 +149,25 @@ String msg = "(" + rs.getString("TIPO_OP") + ") "
 
         } catch (Exception e) {
             e.printStackTrace();
+
+        }
+
+    }
+
+
+    public static void setTaskByIdNotCompleted(String taskId){
+
+        String sql = "UPDATE wrkjexp.ROLE_HEAD SET STATUS = '' WHERE ID = ?";
+
+        try (PreparedStatement st = StatementFactory.newPreparedStatement(sql)) {
+            // Chiavi
+            st.setString(1, taskId);
+
+            st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
         }
 
     }
