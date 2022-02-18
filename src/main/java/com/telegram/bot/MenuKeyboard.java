@@ -13,17 +13,14 @@ import java.util.List;
 public class MenuKeyboard {
     private static final String MY_UNCOMPLETED_TASKS = "\ud83d\uddc2\ufe0f To Do Task";
     private static final String MY_COMPLETED_TASKS = "\u2705 Task completati";
+    private static final String MY_CHANGES = "\u267b\ufe0f Le mie modifiche";
 
     public static SendMessage SendMainKeyboardMenu(Update update){
 
 
         SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
-
         System.out.println("User id: " + update.getMessage().getChatId().toString() + " " + update.getMessage().getChat().getFirstName() + " " + update.getMessage().getChat().getLastName());
-
-
         message.setChatId(update.getMessage().getChatId().toString());
-
         message.setText( "Seleziona un cammando dalla tastiera");
 
         // Create ReplyKeyboardMarkup object
@@ -38,6 +35,13 @@ public class MenuKeyboard {
         // Add the first row to the keyboard
         keyboard.add(keyboard1);
         // Create another keyboard row
+
+
+
+        KeyboardRow keyboardRow2 = new KeyboardRow();
+        // Set each button, you can also use KeyboardButton objects if you need something else than text
+        keyboardRow2.add(MY_CHANGES);
+        keyboard.add(keyboardRow2);
 
 
 

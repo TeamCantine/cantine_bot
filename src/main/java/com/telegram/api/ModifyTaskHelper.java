@@ -36,4 +36,53 @@ public class ModifyTaskHelper {
         return arr;
     }
 
+
+    public static boolean updateVaso(String taskId,String oldVaso, String newVaso){
+        String sql = "INSERT INTO WRKJEXP.ROLE_CHANGE (HEAD_ID,FIELD_CODE,OLD_VALUE,NEW_VALUE) VALUES(?,?,?,?)\n";
+
+        // Creo statement
+        try (PreparedStatement st = StatementFactory.newPreparedStatement(sql)) {
+            // Chiavi
+            st.setString(1, taskId);
+            st.setString(2, "VASO");
+            st.setString(3, oldVaso);
+            st.setString(4, newVaso);
+
+            st.execute();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+
+
+    public static List<String> showChanges(String botId){
+        List<String> arr = new ArrayList<String>();
+
+        String sql = "SELECT * FROM wrkjexp.ROLE_CHANGE WHERE ID IN (SELECT ID FROM WRKJEXP.ROLE_HEAD WHERE OPERATOR = " +
+                "(SELECT AS_USER  FROM WRKJEXP.ROLE_USER WHERE BOT_ID = " + botId + "))";
+
+        try (Statement st = newReadOnlyStatement()) {
+            try (ResultSet rs = st.executeQuery(sql)) {
+                while (rs.next()) {
+
+                    String headId = rs.getString("HEAD_ID").trim();
+                    String fieldCode = rs.getString("FIELD_CODE").trim();
+                    String oldValu = rs.getString("OLD_VALUE").trim();
+                    String newValue = rs.getString("NEW_VALUE").trim();
+                    String msg =  "<b>[TASK]=</b> " + headId + "     <b>[CAMPO]=</b> "+ fieldCode + "     <b>[VECCHIO]=</b> " + oldValu + "     <b>[NUOVO]=</b> "+ newValue + "\n\n";
+                    System.out.println(msg);
+                    arr.add(msg);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return arr;
+    }
+
 }
