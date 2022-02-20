@@ -17,6 +17,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
 
 
     private static final String MY_UNCOMPLETED_TASKS = "\ud83d\uddc2\ufe0f To Do Task";
+    private static final String MY_STARTED_TASKS = "\ud83d\uddc2\ufe0f";
     private static final String MY_COMPLETED_TASKS = "\u2705 Task completati";
     private static final String VASO = "\ud83c\udfee";
     private static final String PRODOTTO = "\ud83c\udf77";
@@ -182,6 +183,20 @@ public class MyAmazingBot extends TelegramLongPollingBot {
                 message.setText("Ok "+ update.getCallbackQuery().getMessage().getChat().getFirstName() + " assegno il task come completato");
                 Taskhelper.setTaskByIdCompleted(call_data.replace("CompletatoC", ""));
         }
+
+
+
+
+        // Inizio il task
+        else if(call_data.contains("\u25b6\ufe0f")){
+            message.setChatId(chat_id);
+            message.setText("Ok "+ update.getCallbackQuery().getMessage().getChat().getFirstName() + " assegno il task come iniziato");
+            Taskhelper.setTaskByIdStartWorking(call_data.replace("\u25b6\ufe0f", ""));
+        }
+
+
+
+
         // Show field list
         else if(call_data.contains("\u2611\ufe0f")){
                String taskId = call_data.replace("\u2611\ufe0f","");

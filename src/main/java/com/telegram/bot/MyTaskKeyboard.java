@@ -1,6 +1,7 @@
 package com.telegram.bot;
 
 import com.telegram.api.ModifyTaskHelper;
+import com.telegram.api.Task;
 import com.telegram.api.Taskhelper;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -21,15 +22,19 @@ public class MyTaskKeyboard {
         message.setText( "Lista dei task non completati: \u274c");
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        ArrayList<String> myTask = Taskhelper.getMyUncompletedTask(update.getMessage().getChatId().toString());
+        ArrayList<Task> myTask = Taskhelper.getMyUncompletedTask(update.getMessage().getChatId().toString());
         List<InlineKeyboardButton> rowInline = null;
 
-         for (String x : myTask){
+         for (Task x : myTask){
              rowInline = new ArrayList<>();
              // Lista di compiti
              InlineKeyboardButton b1 = new InlineKeyboardButton();
-             b1.setText("\u274c"+ " " +x);
-             b1.setCallbackData(x +"\u274c");
+             if(x.getStatus().equals("S"))
+             b1.setText("\u270f\ufe0f"+ " " +x.getMsg());
+             else
+                 b1.setText("\u274c"+ " " +x.getMsg());
+
+             b1.setCallbackData(x.getMsg() +"\u274c");
              rowInline.add(b1);
              rowsInline.add(rowInline);
          }
@@ -112,6 +117,15 @@ public class MyTaskKeyboard {
         b2.setText("\u2611\ufe0f Modifica");
         b2.setCallbackData("\u2611\ufe0f"+ backupTaskId);
         rowInline.add(b2);
+
+        Task myStartedTask = Taskhelper.getMyStartedTask(backupTaskId);
+        if(myStartedTask != null && !myStartedTask.getStatus().equals("S")){
+            InlineKeyboardButton b3 = new InlineKeyboardButton();
+            b3.setText("\u25b6\ufe0f Inizio");
+            b3.setCallbackData("\u25b6\ufe0f"+ backupTaskId);
+            rowInline.add(b3);
+        }
+
 
         // Set the keyboard to the markup
         rowsInline.add(rowInline);

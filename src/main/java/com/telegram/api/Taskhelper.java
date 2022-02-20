@@ -56,10 +56,11 @@ public class Taskhelper {
      * @param id
      * @return
      */
-    public static ArrayList<String> getMyUncompletedTask(String id) {
-        String sql = "SELECT * FROM WRKJEXP.ROLE_HEAD WHERE OPERATOR = (SELECT AS_USER FROM WRKJEXP.ROLE_USER WHERE BOT_ID=" + id + ") AND STATUS = '' ";
+    public static ArrayList<Task> getMyUncompletedTask(String id) {
+        String sql = "SELECT * FROM WRKJEXP.ROLE_HEAD WHERE OPERATOR = (SELECT AS_USER FROM WRKJEXP.ROLE_USER WHERE BOT_ID=" + id + ") AND STATUS IN ('','S') ";
         //    System.out.println(sql);
-        ArrayList<String> arr = new ArrayList<String>();
+        ArrayList<Task> arr = new ArrayList<Task>();
+
         try (Statement st = newReadOnlyStatement()) {
             try (ResultSet rs = st.executeQuery(sql)) {
                 while (rs.next()) {
@@ -68,7 +69,7 @@ public class Taskhelper {
                             + rs.getString("TIPO_OP");
 
                   //  System.out.println(msg);
-                    arr.add(msg);
+                    arr.add(new Task(rs.getString("ID"), msg, rs.getString("STATUS")));
                 }
             }
         } catch (Exception e) {
@@ -103,6 +104,25 @@ public class Taskhelper {
             e.printStackTrace();
         }
         return arr;
+    }
+
+
+    public static Task getMyStartedTask(String taskID) {
+        String sql = "SELECT * FROM WRKJEXP.ROLE_HEAD WHERE ID ='" + taskID + "'";
+        //    System.out.println(sql);
+        Task arr = new Task();
+        try (Statement st = newReadOnlyStatement()) {
+            try (ResultSet rs = st.executeQuery(sql)) {
+                if (rs.next()) {
+                    String msg = rs.getString("ID") + ")      " + rs.getString("CANTINA") + " "
+                            + rs.getString("TIPO_OP");
+                   return  new Task(rs.getString("ID"), msg, rs.getString("STATUS"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
@@ -159,6 +179,23 @@ public class Taskhelper {
     public static void setTaskByIdNotCompleted(String taskId) {
 
         String sql = "UPDATE wrkjexp.ROLE_HEAD SET STATUS = '' WHERE ID = ?";
+
+        try (PreparedStatement st = StatementFactory.newPreparedStatement(sql)) {
+            // Chiavi
+            st.setString(1, taskId);
+
+            st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+
+    }
+
+    public static void setTaskByIdStartWorking(String taskId) {
+
+        String sql = "UPDATE wrkjexp.ROLE_HEAD SET STATUS = 'S' WHERE ID = ?";
 
         try (PreparedStatement st = StatementFactory.newPreparedStatement(sql)) {
             // Chiavi
