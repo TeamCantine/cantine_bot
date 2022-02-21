@@ -1,9 +1,7 @@
 package com.telegram.bot;
 
 
-import com.telegram.api.ModifyTaskHelper;
-import com.telegram.api.Taskhelper;
-import com.telegram.api.UserHelper;
+import com.telegram.api.*;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -77,6 +75,50 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         String message_text = update.getMessage().getText();
         SendMessage message = new SendMessage();
 
+        String chat_id = update.getMessage().getChatId().toString();
+        Pending pendingTask = PendingHelper.getPendingTask(update.getMessage().getChatId().toString());
+
+        // Se l'utente ha un task in pending, devo fine l'operazione
+        if(pendingTask != null && !message_text.equals("/Annulla_Operazione")){
+
+            message.setChatId(update.getMessage().getChatId().toString());
+            // Se l'utente sta premendo qualcosa dalla keyboard principale
+            if(message_text.equals(MY_UNCOMPLETED_TASKS) || message_text.equals(MY_COMPLETED_TASKS) || message_text.equals(MY_CHANGES)){
+                String info = "Se vuoi annullare l'operazione del " + pendingTask.getOperation() + ", clicca su:  /Annulla_Operazione,  altrimenti scrivere il nome del vaso e inviare per completare l'operazione...";
+                message.setText(info);
+            }
+            else
+            {
+                String taskId = pendingTask.getTaskId();
+                String vasoOld = pendingTask.getOldValue();
+                String vasoNew = message_text;
+
+                    if(ModifyTaskHelper.updateVaso(taskId,vasoOld,vasoNew)){
+                        message.setText("Ok "+ update.getMessage().getChat().getFirstName()+ " ho modificato il vaso con successo! " );
+                        PendingHelper.deletePendingTask(chat_id);
+                        try {
+                            execute(message);
+                            SendMessage mms = MyTaskKeyboard.getSingleTask(chat_id,message_text,taskId);
+                            execute(mms);
+                            return;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    else
+                    {
+                        message.setText("Non è stato possibile completare la tua operazione!");
+                    }
+
+            }
+            try {
+                execute(message);
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         if(message_text.equals(MY_UNCOMPLETED_TASKS)){
             message = MyTaskKeyboard.getUncompletedTaskKeyboard(update);
             try {
@@ -96,17 +138,31 @@ public class MyAmazingBot extends TelegramLongPollingBot {
                 e.printStackTrace();
             }
         }
-        else if (message_text.contains("/mettidafare")){
-            Taskhelper.setTaskByIdNotCompleted(message_text.replace("/mettidafare", ""));
-            try {
-                message.setChatId(update.getMessage().getChatId().toString());
-                message.setText("Ok "+ update.getMessage().getChat().getFirstName()+ " modifico il task come 'Da Fare");
+        // Devo annullare l'operazione
+        else if(message_text.equals("/Annulla_Operazione")){
+            PendingHelper.deletePendingTask(update.getMessage().getChatId().toString());
+            message.setChatId(update.getMessage().getChatId().toString());
+            message.setText("Operazione annullata con successo!");
+            try{
                 execute(message);
                 return;
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        else if (message_text.contains("/mettidafare")){
+            Taskhelper.setTaskByIdNotCompleted(message_text.replace("/mettidafare", ""));
+            try {
+                message.setChatId(update.getMessage().getChatId().toString());
+                message.setText("Ok "+ update.getMessage().getChat().getFirstName()+ " modifico il task come 'Da Fare");
+
+                execute(message);
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        /*
         else if(message_text.startsWith("/_____")){
 
             String a = message_text.replace("/_____", "");
@@ -130,7 +186,9 @@ public class MyAmazingBot extends TelegramLongPollingBot {
                 e.printStackTrace();
             }
 
-        }else if(message_text.equals(MY_CHANGES)) {
+        }
+        */
+        else if(message_text.equals(MY_CHANGES)) {
             message.setChatId(update.getMessage().getChatId().toString());
             List<String> changes = ModifyTaskHelper.showChanges(update.getMessage().getChatId().toString());
             String all = "";
@@ -172,11 +230,11 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         SendMessage message = new SendMessage();
         // Uncompleted
         if (call_data.contains("\u274c")) {
-           message = MyTaskKeyboard.getSingleTask(update);
+           message = MyTaskKeyboard.getSingleTask(chat_id,call_data, "");
         }
         // Completed
         else  if (call_data.contains("\u2705")) {
-            message = MyTaskKeyboard.getSingleTask(update);
+            message = MyTaskKeyboard.getSingleTask(chat_id,call_data,"");
         }
         else if(call_data.contains("CompletatoC")){
                 message.setChatId(chat_id);
@@ -218,26 +276,30 @@ public class MyAmazingBot extends TelegramLongPollingBot {
             message.setText("Non è ancora gestito. Portate pazienza!");
         }
         // Ho selezionato il vaso vecchio e chiedo il nuovo
+
         else if(call_data.contains(VASO_ICON)){
-                String concat = call_data.replace(VASO_ICON,"");
-                String[] currencies = concat.split(" ");
-                String taskId = currencies[0];
-                String valoOld = currencies[1];
+            message.setChatId(update.getCallbackQuery().getMessage().getChatId().toString());
+            message.setText("Scrivimi il vaso di destinazione: \n");
 
-                message.setChatId(update.getCallbackQuery().getMessage().getChatId().toString());
-                System.out.println("Task id: "+ taskId + " ValoreVasca_old: " + valoOld);
+            String concat = call_data.replace(VASO_ICON,"");
+            String[] currencies = concat.split(" ");
+            String taskId = currencies[0];
+            String valoOld = currencies[1];
+            System.out.println("taskId " +taskId);
+            System.out.println("valoOld " +valoOld);
+            System.out.println("IDDDDD: "+ update.getCallbackQuery().getMessage().getChatId().toString());
 
-                List<String> vasoFromTask = ModifyTaskHelper.getVasoFromTask(taskId);
-                String vasi = "";
-                for (String vaso : vasoFromTask){
-                    vasi += "'/_____" + taskId+"_____"+ valoOld+ "_____" +  vaso + "' \n ";
-                }
-                message.setText("Scegli il vaso di destinazione: \n\n" +   vasi);
+
+                PendingHelper.deletePendingTask(update.getCallbackQuery().getMessage().getChatId().toString());
+                PendingHelper.insertPending(update.getCallbackQuery().getMessage().getChatId().toString(),
+                        taskId, "Vaso", valoOld );
+
         }
 
 
         // Execute only the message object
         try {
+            System.out.println("Finale " +call_data);
             execute(message);
         } catch (Exception e) {
             e.printStackTrace();

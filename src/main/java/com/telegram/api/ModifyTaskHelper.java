@@ -1,7 +1,6 @@
 package com.telegram.api;
 
 import com.telegram.connection.StatementFactory;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -57,13 +56,15 @@ public class ModifyTaskHelper {
         return false;
     }
 
-
+//
 
     public static List<String> showChanges(String botId){
         List<String> arr = new ArrayList<String>();
 
-        String sql = "SELECT * FROM wrkjexp.ROLE_CHANGE WHERE ID IN (SELECT ID FROM WRKJEXP.ROLE_HEAD WHERE OPERATOR = " +
+        String sql = "SELECT * FROM wrkjexp.ROLE_CHANGE WHERE HEAD_ID IN (SELECT ID FROM WRKJEXP.ROLE_HEAD WHERE OPERATOR = " +
                 "(SELECT AS_USER  FROM WRKJEXP.ROLE_USER WHERE BOT_ID = " + botId + "))";
+
+        System.out.println(sql);
 
         try (Statement st = newReadOnlyStatement()) {
             try (ResultSet rs = st.executeQuery(sql)) {
@@ -73,7 +74,7 @@ public class ModifyTaskHelper {
                     String fieldCode = rs.getString("FIELD_CODE").trim();
                     String oldValu = rs.getString("OLD_VALUE").trim();
                     String newValue = rs.getString("NEW_VALUE").trim();
-                    String msg =  "<b>[TASK]=</b> " + headId + "     <b>[CAMPO]=</b> "+ fieldCode + "     <b>[VECCHIO]=</b> " + oldValu + "     <b>[NUOVO]=</b> "+ newValue + "\n\n";
+                    String msg =  "<b>TASK=</b> " + headId + "     <b>CAMPO=</b> "+ fieldCode + "     <b>VECCHIO=</b> " + oldValu + "     <b>NUOVO=</b> "+ newValue + "\n\n";
                     System.out.println(msg);
                     arr.add(msg);
                 }
@@ -83,6 +84,24 @@ public class ModifyTaskHelper {
         }
 
         return arr;
+    }
+
+    public static List<Change> getChange(String taskId){
+        List<Change> changes = new ArrayList<>();
+        String sql = "SELECT * FROM WRKJEXP.ROLE_CHANGE WHERE HEAD_ID =" + taskId;
+
+        try (Statement st = newReadOnlyStatement()) {
+            try (ResultSet rs = st.executeQuery(sql)) {
+             while( rs.next()){
+                 Change ch = new Change(rs.getString("ID").trim(),rs.getString("HEAD_ID").trim(),rs.getString("FIELD_CODE").trim(),rs.getString("OLD_VALUE").trim(),rs.getString("NEW_VALUE").trim());
+                 changes.add(ch);
+             }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return changes;
     }
 
 }

@@ -57,7 +57,7 @@ public class Taskhelper {
      * @return
      */
     public static ArrayList<Task> getMyUncompletedTask(String id) {
-        String sql = "SELECT * FROM WRKJEXP.ROLE_HEAD WHERE OPERATOR = (SELECT AS_USER FROM WRKJEXP.ROLE_USER WHERE BOT_ID=" + id + ") AND STATUS IN ('','S') ";
+        String sql = "SELECT * FROM WRKJEXP.ROLE_HEAD WHERE OPERATOR = (SELECT AS_USER FROM WRKJEXP.ROLE_USER WHERE BOT_ID=" + id + ") AND STATUS IN ('','S') ORDER BY STATUS";
         //    System.out.println(sql);
         ArrayList<Task> arr = new ArrayList<Task>();
 
@@ -93,11 +93,14 @@ public class Taskhelper {
             try (ResultSet rs = st.executeQuery(sql)) {
                 while (rs.next()) {
 
+                    List<Change> taskExists = ModifyTaskHelper.getChange(rs.getString("ID"));
+
                     String msg = rs.getString("ID") + ")      " + rs.getString("CANTINA") + " "
-                            + rs.getString("TIPO_OP");
+                            + rs.getString("TIPO_OP") + (!taskExists.isEmpty() ? " \ud83d\udd27" : "");
 
                  //   System.out.println(msg);
                     arr.add(msg);
+
                 }
             }
         } catch (Exception e) {

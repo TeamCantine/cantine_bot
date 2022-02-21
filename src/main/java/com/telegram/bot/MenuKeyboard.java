@@ -21,7 +21,7 @@ public class MenuKeyboard {
         SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
         System.out.println("User id: " + update.getMessage().getChatId().toString() + " " + update.getMessage().getChat().getFirstName() + " " + update.getMessage().getChat().getLastName());
         message.setChatId(update.getMessage().getChatId().toString());
-        message.setText( "Seleziona un cammando dalla tastiera");
+        message.setText( "Seleziona un commando dalla tastiera");
 
         // Create ReplyKeyboardMarkup object
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();

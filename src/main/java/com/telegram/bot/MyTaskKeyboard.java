@@ -1,5 +1,6 @@
 package com.telegram.bot;
 
+import com.telegram.api.Change;
 import com.telegram.api.ModifyTaskHelper;
 import com.telegram.api.Task;
 import com.telegram.api.Taskhelper;
@@ -12,8 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyTaskKeyboard {
-
-
 
     public static SendMessage getUncompletedTaskKeyboard(Update update){
         SendMessage message = new SendMessage();
@@ -59,7 +58,9 @@ public class MyTaskKeyboard {
             rowInline = new ArrayList<>();
             // Lista di compiti
             InlineKeyboardButton b1 = new InlineKeyboardButton();
-            b1.setText("\u2705"+ " " +x);
+
+            b1.setText("\u2705"+ " " +x );
+
             b1.setCallbackData(x +"\u2705");
             rowInline.add(b1);
             rowsInline.add(rowInline);
@@ -72,21 +73,36 @@ public class MyTaskKeyboard {
     }
 
 
-    public static SendMessage getSingleTask( Update update){
-        Integer message_id = update.getCallbackQuery().getMessage().getMessageId();
-        String chat_id = update.getCallbackQuery().getMessage().getChatId().toString();
-
-        String data = update.getCallbackQuery().getData();
+    public static SendMessage getSingleTask( String chat_id, String dataMsg, String taskId){
+       // String chat_id = update.getCallbackQuery().getMessage().getChatId().toString();
+        System.out.println("#####chatId: "+chat_id);
+        System.out.println("#####DATA: "+dataMsg);
+        String data = dataMsg;//update.getCallbackQuery().getData();
         String backupTaskId = data.substring(0, 1);
-        ArrayList<String> myTaskDetail = Taskhelper.getMyTaskDetail(data.substring(0, 1));
+        if(!taskId.equals("")){
+            backupTaskId = taskId;
+        }
+        ArrayList<String> myTaskDetail = Taskhelper.getMyTaskDetail(backupTaskId);
         SendMessage message = new SendMessage();
-
-        System.out.println("Lista task da: " + update.getCallbackQuery().getMessage().getChat().getFirstName());
+        message.setParseMode("HTML");
         message.setChatId(chat_id);
-        String ms = "Descrizione del task: " + backupTaskId + "\n\n";
+        String ms = "<b>Descrizione del task:</b> " + backupTaskId + "\n\n";
         for(String x : myTaskDetail){
             ms += x + "\n";
         }
+
+        // Aggiungere anche le modifiche apportate
+        List<Change> changes = ModifyTaskHelper.getChange(backupTaskId);
+        if(!changes.isEmpty()){
+            ms += "\n<b> Modifiche apportate:</b> \n\n";
+            int i = 1;
+           for(Change ch : changes){
+               String msg = "<b>"+ i + ")</b> CAMPO= "+ ch.getFieldCode() + "  VECCHIO= " + ch.getOldValue() + "  NUOVO= "+ ch.getNewValue() + "\n";
+               ms += msg;
+               i++;
+           }
+        }
+
         // if doesnt exsists row of a task
         if(ms.equals("Descrizione del task \n\n")){
             ms += " Non esistono task!";
@@ -95,7 +111,7 @@ public class MyTaskKeyboard {
         }
         // Sono nei completati non devo mostrare i 2 bottoni di conferma
         if(data.contains("\u2705")){
-             ms += "\n  Vuoi modificare questo task come 'Da fare'? Clica su: '/mettidafare"  + backupTaskId + "'" ;
+             ms += "\n <b>**</b> Vuoi modificare questo task come 'Da fare'? Clica su: /mettidafare"  + backupTaskId + "<b>**</b>" ;
             message.setText(ms);
             return message;
         }
