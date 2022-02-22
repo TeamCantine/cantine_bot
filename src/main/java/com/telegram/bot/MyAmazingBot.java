@@ -120,7 +120,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         }
 
         if(message_text.equals(MY_UNCOMPLETED_TASKS)){
-            message = MyTaskKeyboard.getUncompletedTaskKeyboard(update);
+            message = MyTaskKeyboard.getUncompletedTaskKeyboard(update.getMessage().getChatId().toString());
             try {
                 execute(message);
                 return;
@@ -150,12 +150,13 @@ public class MyAmazingBot extends TelegramLongPollingBot {
                 e.printStackTrace();
             }
         }
-        else if (message_text.contains("/mettidafare")){
-            Taskhelper.setTaskByIdNotCompleted(message_text.replace("/mettidafare", ""));
+        else if (message_text.contains("/riattiva_Task")){
+            Taskhelper.setTaskByIdNotCompleted(message_text.replace("/riattiva_Task", ""));
             try {
                 message.setChatId(update.getMessage().getChatId().toString());
-                message.setText("Ok "+ update.getMessage().getChat().getFirstName()+ " modifico il task come 'Da Fare");
-
+                message.setText("Ok "+ update.getMessage().getChat().getFirstName()+ " riporto il task nella lista 'To Do");
+                execute(message);
+                message = MyTaskKeyboard.getUncompletedTaskKeyboard(chat_id);
                 execute(message);
                 return;
             } catch (Exception e) {
@@ -229,7 +230,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         String chat_id = update.getCallbackQuery().getMessage().getChatId().toString();
         SendMessage message = new SendMessage();
         // Uncompleted
-        if (call_data.contains("\u274c")) {
+        if (call_data.contains("\ud83d\udccb")) {
            message = MyTaskKeyboard.getSingleTask(chat_id,call_data, "");
         }
         // Completed
@@ -240,16 +241,30 @@ public class MyAmazingBot extends TelegramLongPollingBot {
                 message.setChatId(chat_id);
                 message.setText("Ok "+ update.getCallbackQuery().getMessage().getChat().getFirstName() + " assegno il task come completato");
                 Taskhelper.setTaskByIdCompleted(call_data.replace("CompletatoC", ""));
+
+            try {
+                execute(message);
+                message = MyTaskKeyboard.getUncompletedTaskKeyboard(chat_id);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
         }
-
-
-
 
         // Inizio il task
         else if(call_data.contains("\u25b6\ufe0f")){
             message.setChatId(chat_id);
             message.setText("Ok "+ update.getCallbackQuery().getMessage().getChat().getFirstName() + " assegno il task come iniziato");
             Taskhelper.setTaskByIdStartWorking(call_data.replace("\u25b6\ufe0f", ""));
+            try {
+                execute(message);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            message = MyTaskKeyboard.getUncompletedTaskKeyboard(chat_id);
+
         }
 
 

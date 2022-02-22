@@ -14,14 +14,18 @@ import java.util.List;
 
 public class MyTaskKeyboard {
 
-    public static SendMessage getUncompletedTaskKeyboard(Update update){
+    public static SendMessage getUncompletedTaskKeyboard( String chat_id){
         SendMessage message = new SendMessage();
-        message.setChatId(update.getMessage().getChatId().toString());
-
-        message.setText( "Lista dei task non completati: \u274c");
+        message.setChatId(chat_id);
+        ArrayList<Task> myTask = Taskhelper.getMyUncompletedTask(chat_id);
+        if(myTask.isEmpty()){
+            message.setText( "Non esiste alcun task da completare!");
+        }
+        else
+        message.setText( "Lista dei task non completati: \ud83d\udccb");
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        ArrayList<Task> myTask = Taskhelper.getMyUncompletedTask(update.getMessage().getChatId().toString());
+
         List<InlineKeyboardButton> rowInline = null;
 
          for (Task x : myTask){
@@ -31,9 +35,9 @@ public class MyTaskKeyboard {
              if(x.getStatus().equals("S"))
              b1.setText("\u270f\ufe0f"+ " " +x.getMsg());
              else
-                 b1.setText("\u274c"+ " " +x.getMsg());
+                 b1.setText("\ud83d\udccb"+ " " +x.getMsg());
 
-             b1.setCallbackData(x.getMsg() +"\u274c");
+             b1.setCallbackData(x.getMsg() +"\ud83d\udccb");
              rowInline.add(b1);
              rowsInline.add(rowInline);
          }
@@ -47,11 +51,14 @@ public class MyTaskKeyboard {
 
         SendMessage message = new SendMessage();
         message.setChatId(update.getMessage().getChatId().toString());
-
+        ArrayList<String> myTask = Taskhelper.getMycompletedTask(update.getMessage().getChatId().toString());
+        if(myTask.isEmpty())
+            message.setText("Non è presente alcun task completato!");
+        else
         message.setText( "Lista dei task completati: \u2705");
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        ArrayList<String> myTask = Taskhelper.getMycompletedTask(update.getMessage().getChatId().toString());
+
         List<InlineKeyboardButton> rowInline = null;
 
         for (String x : myTask){
@@ -74,11 +81,8 @@ public class MyTaskKeyboard {
 
 
     public static SendMessage getSingleTask( String chat_id, String dataMsg, String taskId){
-       // String chat_id = update.getCallbackQuery().getMessage().getChatId().toString();
-        System.out.println("#####chatId: "+chat_id);
-        System.out.println("#####DATA: "+dataMsg);
-        String data = dataMsg;//update.getCallbackQuery().getData();
-        String backupTaskId = data.substring(0, 1);
+        String data = dataMsg;
+        String backupTaskId = data.split("\\)")[0];
         if(!taskId.equals("")){
             backupTaskId = taskId;
         }
@@ -111,7 +115,8 @@ public class MyTaskKeyboard {
         }
         // Sono nei completati non devo mostrare i 2 bottoni di conferma
         if(data.contains("\u2705")){
-             ms += "\n <b>**</b> Vuoi modificare questo task come 'Da fare'? Clica su: /mettidafare"  + backupTaskId + "<b>**</b>" ;
+            ms+= "\n <b>-------------------------------------</b> \n";
+             ms += "\n <i>Vuoi spostare questo task nella lista 'To Do Task'? \n Clicca su: /riattiva_Task"  + backupTaskId + "</i>" ;
             message.setText(ms);
             return message;
         }
