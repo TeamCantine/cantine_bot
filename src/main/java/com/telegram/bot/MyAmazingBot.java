@@ -2,10 +2,21 @@ package com.telegram.bot;
 
 
 import com.telegram.api.*;
+import com.telegram.qrcode.ReadQRCodeFromFile;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Document;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -63,6 +74,87 @@ public class MyAmazingBot extends TelegramLongPollingBot {
             //authenticate user first
             performCallBackMessage(update);
         }
+        else if (update.hasMessage() && update.getMessage().hasPhoto()) {
+            System.out.println("Ciao");
+            performPhotoMessage(update);
+        }
+
+    }
+
+    private void performPhotoMessage(Update update)  {
+
+
+        String chat_id = update.getMessage().getChatId().toString();
+        List<PhotoSize> photos  = update.getMessage().getPhoto();
+
+        String f_id = photos.stream()
+                .sorted(Comparator.comparing(PhotoSize::getFileSize).reversed())
+                .findFirst()
+                .orElse(null).getFileId();
+        // Know photo width
+        int f_width = photos.stream()
+                .sorted(Comparator.comparing(PhotoSize::getFileSize).reversed())
+                .findFirst()
+                .orElse(null).getWidth();
+        // Know photo height
+        int f_height = photos.stream()
+                .sorted(Comparator.comparing(PhotoSize::getFileSize).reversed())
+                .findFirst()
+                .orElse(null).getHeight();
+
+        try {
+            String filePath =  execute(new GetFile(f_id)).getFileUrl("5174941088:AAEFuzWWNKPwyyJQ_M53WlxRhoWrKVgsPXM");
+            System.out.println(filePath);
+            String qrcode = ReadQRCodeFromFile.getQrcode(filePath);
+            System.out.println(qrcode);
+
+
+
+            Pending pendingTask = PendingHelper.getPendingTask(update.getMessage().getChatId().toString());
+
+            String taskId = pendingTask.getTaskId();
+            String vasoOld = pendingTask.getOldValue();
+            String vasoNew = qrcode;
+            SendMessage message = new SendMessage();
+            message.setChatId(chat_id);
+
+
+            if(vasoNew == null){
+                try {
+                    message.setText("Non sono riuscito a leggere bene l'immagine. \n Riprova a mandare un'altra... \n");
+                    execute(message);
+                    return;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            if(ModifyTaskHelper.updateVaso(taskId,vasoOld,vasoNew)){
+                message.setText("Ok "+ update.getMessage().getChat().getFirstName()+ " ho modificato il vaso con successo! " );
+                PendingHelper.deletePendingTask(chat_id);
+                try {
+                    execute(message);
+                    SendMessage mms = MyTaskKeyboard.getSingleTask(chat_id,vasoNew,taskId);
+                    execute(mms);
+                    return;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            else
+            {
+                message.setText("Non è stato possibile completare la tua operazione!");
+            }
+
+
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -267,9 +359,6 @@ public class MyAmazingBot extends TelegramLongPollingBot {
 
         }
 
-
-
-
         // Show field list
         else if(call_data.contains("\u2611\ufe0f")){
                String taskId = call_data.replace("\u2611\ufe0f","");
@@ -294,7 +383,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
 
         else if(call_data.contains(VASO_ICON)){
             message.setChatId(update.getCallbackQuery().getMessage().getChatId().toString());
-            message.setText("Scrivimi il vaso di destinazione: \n");
+            message.setText("Digitare il codice del vaso di destinazione, \n o in alternativa mandami una foto del QRCODE \n");
 
             String concat = call_data.replace(VASO_ICON,"");
             String[] currencies = concat.split(" ");
