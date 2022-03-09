@@ -23,7 +23,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class MyAmazingBot extends TelegramLongPollingBot {
 
-
+private static final String botToken = "5174941088:AAEFuzWWNKPwyyJQ_M53WlxRhoWrKVgsPXM";
+private static final String botToken_cantine = "5122590653:AAHxT90EEDOOQoNupWdhGPmRPQ9WYNC7Zj4";
 
     private static final String MY_UNCOMPLETED_TASKS = "\ud83d\uddc2\ufe0f To Do Task";
     private static final String MY_STARTED_TASKS = "\ud83d\uddc2\ufe0f";
@@ -103,7 +104,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
                 .orElse(null).getHeight();
 
         try {
-            String filePath =  execute(new GetFile(f_id)).getFileUrl("5174941088:AAEFuzWWNKPwyyJQ_M53WlxRhoWrKVgsPXM");
+            String filePath =  execute(new GetFile(f_id)).getFileUrl(botToken);
             System.out.println(filePath);
             String qrcode = ReadQRCodeFromFile.getQrcode(filePath);
             System.out.println(qrcode);
@@ -169,6 +170,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
 
         String chat_id = update.getMessage().getChatId().toString();
         Pending pendingTask = PendingHelper.getPendingTask(update.getMessage().getChatId().toString());
+
 
         // Se l'utente ha un task in pending, devo fine l'operazione
         if(pendingTask != null && !message_text.equals("/Annulla_Operazione")){
@@ -255,32 +257,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
                 e.printStackTrace();
             }
         }
-        /*
-        else if(message_text.startsWith("/_____")){
 
-            String a = message_text.replace("/_____", "");
-            String[] b = a.split("_____");
-            String taskId = b[0];
-            String vasoOld = b[1];
-            String vasoNew = b[2];
-            message.setChatId(update.getMessage().getChatId().toString());
-
-            try {
-            if(ModifyTaskHelper.updateVaso(taskId,vasoOld,vasoNew)){
-                message.setText("Ok "+ update.getMessage().getChat().getFirstName()+ " ho modificato il tuo vaso con successo! [" +vasoOld+ " --->" +  vasoNew +"]" );
-            }
-            else
-            {
-                message.setText("Non è stato possibile completare la tua operazione!");
-            }
-                execute(message);
-                return;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-        */
         else if(message_text.equals(MY_CHANGES)) {
             message.setChatId(update.getMessage().getChatId().toString());
             List<String> changes = ModifyTaskHelper.showChanges(update.getMessage().getChatId().toString());
@@ -419,7 +396,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
     @Override
     public String getBotToken() {
         // TODO
-        return "5174941088:AAEFuzWWNKPwyyJQ_M53WlxRhoWrKVgsPXM";
+        return botToken;
     }
 
 }
