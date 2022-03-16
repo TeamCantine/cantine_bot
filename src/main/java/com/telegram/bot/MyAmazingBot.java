@@ -6,25 +6,41 @@ import com.telegram.qrcode.ReadQRCodeFromFile;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Document;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 
+import java.net.*;
+import java.io.*;
+
+
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import static com.google.common.net.HttpHeaders.USER_AGENT;
+
+import java.net.*;
+import java.io.*;
 public class MyAmazingBot extends TelegramLongPollingBot {
 
 private static final String botToken = "5174941088:AAEFuzWWNKPwyyJQ_M53WlxRhoWrKVgsPXM";
-private static final String botToken_cantine = "5122590653:AAHxT90EEDOOQoNupWdhGPmRPQ9WYNC7Zj4";
+// non mio
+private static final String botToken1 = "5122590653:AAHxT90EEDOOQoNupWdhGPmRPQ9WYNC7Zj4";
 
     private static final String MY_UNCOMPLETED_TASKS = "\ud83d\uddc2\ufe0f To Do Task";
     private static final String MY_STARTED_TASKS = "\ud83d\uddc2\ufe0f";
@@ -76,11 +92,177 @@ private static final String botToken_cantine = "5122590653:AAHxT90EEDOOQoNupWdhG
             performCallBackMessage(update);
         }
         else if (update.hasMessage() && update.getMessage().hasPhoto()) {
-            System.out.println("Ciao");
+            System.out.println("Arrivato foto");
             performPhotoMessage(update);
+        }
+        else if(update.hasMessage() && update.getMessage().hasVoice()){
+            System.out.println("Arrivato voce");
+            performVoiceMessage(update);
         }
 
     }
+
+    private void performVoiceMessage(Update update) {
+
+        String chat_id = update.getMessage().getChatId().toString();
+        Voice voice = update.getMessage().getVoice();
+        String f_id = voice.getFileId();
+        SendMessage mms = new SendMessage();
+        File file = null;
+        //GetFile getFile = new GetFile().setFileId(fileId);
+        try {
+            String filePath = execute(new GetFile(f_id)).getFileUrl(botToken);
+            System.out.println(filePath);
+
+         String finalUrl = "http://10.100.0.30:5000/api?urlTel="+filePath;
+
+            mms.setChatId(chat_id);
+            mms.setText("Attendere... Stiamo elaborando la vostra richiesta.....");
+            execute(mms);
+
+/*
+            URL yahoo = new URL(finalUrl);
+
+            URLConnection yc = yahoo.openConnection();
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(
+                            yc.getInputStream()));
+            String inputLine;
+
+            while ((inputLine = in.readLine()) != null)
+                System.out.println(inputLine);
+            in.close();
+*/
+
+            URL obj = new URL(finalUrl);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("GET");
+            con.setRequestProperty("User-Agent", USER_AGENT);
+            int responseCode = con.getResponseCode();
+            System.out.println("GET Response Code :: " + responseCode);
+            if (responseCode == HttpURLConnection.HTTP_OK) { // success
+                BufferedReader in = new BufferedReader(new InputStreamReader(
+                        con.getInputStream()));
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                // print result
+                String finale = response.toString().trim().toUpperCase(Locale.ROOT) ;
+                System.out.println( finale);
+
+                String task = "";
+
+                String[] bits = finale.split("TASK");
+                task = (bits[bits.length - 1]).trim();
+
+                String smile = "\n Non ci credi? Vai a vedere! \uD83D\uDE09";
+
+                if(finale.contains("COMPLETA")){
+                   if(!task.matches("-?\\d+(\\.\\d+)?")) {
+                       mms.setText("Non ho capito bene, prova a dire ad esempio: \n\n"
+                               +"1) Completa task 100 \n2) Annulla task 100 \n"+
+                               "3) Inizia task 100 \n4) Dettaglio task 100");
+                   }
+                       else {
+
+                           if(Taskhelper.getMyStartedTask(task) == null){
+                               mms.setText("Task " + task + " non esistente nei tuoi task TODO. Prova con un altro");
+                           }
+                           else {
+
+                               mms.setText("Ok " + update.getMessage().getChat().getFirstName() + " ho assegnato il task " + task + " come completato." + smile);
+                               Taskhelper.setTaskByIdCompleted(task);
+                           }
+                   }
+                }
+                else if(finale.contains("ANNULLA")){
+                    if(!task.matches("-?\\d+(\\.\\d+)?")) {
+                        mms.setText("Non ho capito bene, prova a dire ad esempio: \n\n"
+                                +"1) Completa task 100 \n2) Annulla task 100 \n"+
+                                "3) Inizia task 100 \n4) Dettaglio task 100");
+                    }
+                    else {
+                      Task taskObj=  Taskhelper.getMyStartedTask(task);
+                        if(taskObj != null && !taskObj.getStatus().equals("C")){
+                            mms.setText("Task " + task + " non esistente nei tuoi task COMPLETATI. Prova con un altro");
+                        }
+                        else {
+                            mms.setText("Ok " + update.getMessage().getChat().getFirstName() + " ho assegnato il task " + task + " come ANNULLATO." + smile);
+                            Taskhelper.setTaskByIdNotCompleted(task);
+                        }
+                    }
+                }
+                else if(finale.contains("INIZIA")){
+                    if(!task.matches("-?\\d+(\\.\\d+)?")) {
+                        mms.setText("Non ho capito bene, prova a dire ad esempio: \n\n"
+                                +"1) Completa task 100 \n2) Annulla task 100 \n"+
+                                "3) Inizia task 100 \n4) Dettaglio task 100");
+                    }
+                    else {
+                        Task taskObj=  Taskhelper.getMyStartedTask(task);
+                        if(taskObj != null && !taskObj.getStatus().trim().isEmpty()){
+                            mms.setText("Task " + task + " non esistente nei tuoi task COMPLETATI.Prova con un altro");
+                        }
+                        else {
+                            mms.setText("Ok " + update.getMessage().getChat().getFirstName() + " ho INIZIATO il task " + task + "." + smile );
+                            Taskhelper.setTaskByIdStartWorking(task);
+                        }
+                    }
+                }
+                else if(finale.contains("DETTAGLI")){
+                    if(!task.matches("-?\\d+(\\.\\d+)?")) {
+                        mms.setText("Non ho capito bene, prova a dire ad esempio: \n\n"
+                                +"1) Completa task 100 \n2) Annulla task 100 \n"+
+                                "3) Inizia task 100 \n4) Dettaglio task 100");
+                    }
+                    else {
+                        ArrayList<String> taskArray= Taskhelper.getMyTaskDetail(task);
+                        if(taskArray.isEmpty()){
+                            mms.setText("Task " + task + " non ha nessun dettaglio");
+                        }
+                        else {
+                            mms.setText("Ok " + update.getMessage().getChat().getFirstName() +
+                                    " questi sono i dettagli del task " + task + "\n" + taskArray);
+
+                        }
+                    }
+                }
+                else
+                    mms.setText("Non ho capito bene, prova a dire ad esempio: \n\n"
+                            +"1) Completa task 100 \n2) Annulla task 100 \n"+
+                            "3) Inizia task 100 \n4) Dettaglio task 100");
+
+
+
+
+                mms.setChatId(chat_id);
+                execute(mms);
+                return;
+
+
+
+               // System.out.println(finale);
+            } else {
+                System.out.println("GET request not worked");
+            }
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //String filePath = execute(getFile).getFilePath();
+        //File file = downloadFile(filePath, outputFile);
+
+
+    }
+
 
     private void performPhotoMessage(Update update)  {
 
@@ -92,16 +274,7 @@ private static final String botToken_cantine = "5122590653:AAHxT90EEDOOQoNupWdhG
                 .sorted(Comparator.comparing(PhotoSize::getFileSize).reversed())
                 .findFirst()
                 .orElse(null).getFileId();
-        // Know photo width
-        int f_width = photos.stream()
-                .sorted(Comparator.comparing(PhotoSize::getFileSize).reversed())
-                .findFirst()
-                .orElse(null).getWidth();
-        // Know photo height
-        int f_height = photos.stream()
-                .sorted(Comparator.comparing(PhotoSize::getFileSize).reversed())
-                .findFirst()
-                .orElse(null).getHeight();
+
 
         try {
             String filePath =  execute(new GetFile(f_id)).getFileUrl(botToken);
