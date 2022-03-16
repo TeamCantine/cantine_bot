@@ -17,7 +17,7 @@ public class ModifyTaskHelper {
         List<String> arr = new ArrayList<String>();
 
 
-        String sql = "SELECT * FROM WRKJEXP.ROLE_ROW WHERE HEAD_ID =" + taskId;
+        String sql = "SELECT * FROM WRKJEXP.ROLE_ROW WHERE HEAD_ID =" + taskId.trim();
 
         try (Statement st = newReadOnlyStatement()) {
             try (ResultSet rs = st.executeQuery(sql)) {
@@ -42,10 +42,10 @@ public class ModifyTaskHelper {
         // Creo statement
         try (PreparedStatement st = StatementFactory.newPreparedStatement(sql)) {
             // Chiavi
-            st.setString(1, taskId);
+            st.setString(1, taskId.trim());
             st.setString(2, "VASO");
-            st.setString(3, oldVaso);
-            st.setString(4, newVaso);
+            st.setString(3, oldVaso.trim());
+            st.setString(4, newVaso.trim());
 
             st.execute();
             return true;
@@ -62,7 +62,7 @@ public class ModifyTaskHelper {
         List<String> arr = new ArrayList<String>();
 
         String sql = "SELECT * FROM wrkjexp.ROLE_CHANGE WHERE HEAD_ID IN (SELECT ID FROM WRKJEXP.ROLE_HEAD WHERE OPERATOR = " +
-                "(SELECT AS_USER  FROM WRKJEXP.ROLE_USER WHERE BOT_ID = " + botId + "))";
+                "(SELECT AS_USER  FROM WRKJEXP.ROLE_USER WHERE BOT_ID ='" + botId.trim() + "'))";
 
         System.out.println(sql);
 
@@ -88,7 +88,7 @@ public class ModifyTaskHelper {
 
     public static List<Change> getChange(String taskId){
         List<Change> changes = new ArrayList<>();
-        String sql = "SELECT * FROM WRKJEXP.ROLE_CHANGE WHERE HEAD_ID =" + taskId;
+        String sql = "SELECT * FROM WRKJEXP.ROLE_CHANGE WHERE HEAD_ID =" + taskId.trim();
 
         try (Statement st = newReadOnlyStatement()) {
             try (ResultSet rs = st.executeQuery(sql)) {

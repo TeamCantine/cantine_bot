@@ -57,7 +57,7 @@ public class Taskhelper {
      * @return
      */
     public static ArrayList<Task> getMyUncompletedTask(String id) {
-        String sql = "SELECT * FROM WRKJEXP.ROLE_HEAD WHERE OPERATOR = (SELECT AS_USER FROM WRKJEXP.ROLE_USER WHERE BOT_ID=" + id + ") AND STATUS IN ('','S') ORDER BY STATUS";
+        String sql = "SELECT * FROM WRKJEXP.ROLE_HEAD WHERE OPERATOR = (SELECT AS_USER FROM WRKJEXP.ROLE_USER WHERE BOT_ID='" + id.trim() + "') AND STATUS IN ('','S') ORDER BY STATUS";
         //    System.out.println(sql);
         ArrayList<Task> arr = new ArrayList<Task>();
 
@@ -86,7 +86,7 @@ public class Taskhelper {
      * @return
      */
     public static ArrayList<String> getMycompletedTask(String id) {
-        String sql = "SELECT * FROM WRKJEXP.ROLE_HEAD WHERE OPERATOR = (SELECT AS_USER FROM WRKJEXP.ROLE_USER WHERE BOT_ID=" + id + ") AND STATUS = 'C' ";
+        String sql = "SELECT * FROM WRKJEXP.ROLE_HEAD WHERE OPERATOR = (SELECT AS_USER FROM WRKJEXP.ROLE_USER WHERE BOT_ID='" + id.trim() + "') AND STATUS = 'C' ";
         //    System.out.println(sql);
         ArrayList<String> arr = new ArrayList<String>();
         try (Statement st = newReadOnlyStatement()) {
@@ -111,7 +111,7 @@ public class Taskhelper {
 
 
     public static Task getMyStartedTask(String taskID) {
-        String sql = "SELECT * FROM WRKJEXP.ROLE_HEAD WHERE ID ='" + taskID + "'";
+        String sql = "SELECT * FROM WRKJEXP.ROLE_HEAD WHERE ID =" + taskID.trim();
         //    System.out.println(sql);
         Task arr = new Task();
         try (Statement st = newReadOnlyStatement()) {
@@ -137,7 +137,7 @@ public class Taskhelper {
      */
     public static ArrayList<String> getMyTaskDetail(String taskId) {
 
-        String sql = "SELECT A.TIPO_OP , B.ROW_TYPE ,B.CODE_VASE, B.QUANTITY FROM wrkjexp.ROLE_HEAD AS A JOIN wrkjexp.ROLE_ROW AS B ON A.ID = B.HEAD_ID WHERE A.ID =" + taskId + "";
+        String sql = "SELECT A.TIPO_OP , B.ROW_TYPE ,B.CODE_VASE, B.QUANTITY FROM wrkjexp.ROLE_HEAD AS A JOIN wrkjexp.ROLE_ROW AS B ON A.ID = B.HEAD_ID WHERE A.ID =" + taskId.trim();
         //  System.out.println(sql);
         ArrayList<String> arr = new ArrayList<String>();
 

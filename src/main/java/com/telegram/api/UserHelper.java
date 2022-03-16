@@ -14,7 +14,7 @@ public class UserHelper {
 public static String getUser(String id, Update update){
 
     try(Statement st = newReadOnlyStatement()){
-        try(ResultSet rs = st.executeQuery("SELECT * FROM WRKJEXP.ROLE_USER WHERE BOT_ID = '" + id + "'")){
+        try(ResultSet rs = st.executeQuery("SELECT * FROM WRKJEXP.ROLE_USER WHERE BOT_ID = '" + id.trim() + "'")){
     if(rs.next()) {
         if(rs.getString("STATUS").equals("C")){
             return rs.getString("USER_NAME");

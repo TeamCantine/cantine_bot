@@ -16,7 +16,7 @@ public class PendingHelper {
     //cancellare
     public static Pending getPendingTask(String telId){
 
-        String sql = "SELECT * FROM WRKJEXP.ROLE_PENDING_TASK WHERE IDTEL =" + telId;
+        String sql = "SELECT * FROM WRKJEXP.ROLE_PENDING_TASK WHERE IDTEL ='" + telId.trim() + "'";
 
         try (Statement st = newReadOnlyStatement()) {
             try (ResultSet rs = st.executeQuery(sql)) {
@@ -36,7 +36,7 @@ public class PendingHelper {
     //cancellare
     public static boolean deletePendingTask(String telId){
 
-        String sql = "DELETE FROM WRKJEXP.ROLE_PENDING_TASK WHERE IDTEL =" + telId;
+        String sql = "DELETE FROM WRKJEXP.ROLE_PENDING_TASK WHERE IDTEL ='" + telId.trim() + "'";
 
         try (Statement st = newReadOnlyStatement()) {
             st.execute(sql);
@@ -55,10 +55,10 @@ public class PendingHelper {
         // Creo statement
         try (PreparedStatement st = StatementFactory.newPreparedStatement(ins)) {
 
-            st.setString(1, idTelegram);
-            st.setString(2, taskId);
-            st.setString(3, operation);
-            st.setString(4, oldValue);
+            st.setString(1, idTelegram.trim());
+            st.setString(2, taskId.trim());
+            st.setString(3, operation.trim());
+            st.setString(4, oldValue.trim());
 
             st.execute();
 
