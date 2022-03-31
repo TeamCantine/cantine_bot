@@ -7,6 +7,8 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.imageio.ImageIO;
@@ -38,9 +40,9 @@ import java.net.*;
 import java.io.*;
 public class MyAmazingBot extends TelegramLongPollingBot {
 
-private static final String botToken = "5174941088:AAEFuzWWNKPwyyJQ_M53WlxRhoWrKVgsPXM";
+private static final String botToken1 = "5174941088:AAEFuzWWNKPwyyJQ_M53WlxRhoWrKVgsPXM";
 // non mio
-private static final String botToken1 = "5122590653:AAHxT90EEDOOQoNupWdhGPmRPQ9WYNC7Zj4";
+private static final String botToken = "5122590653:AAHxT90EEDOOQoNupWdhGPmRPQ9WYNC7Zj4";
 
     private static final String MY_UNCOMPLETED_TASKS = "\ud83d\uddc2\ufe0f To Do Task";
     private static final String MY_STARTED_TASKS = "\ud83d\uddc2\ufe0f";
@@ -449,9 +451,30 @@ private static final String botToken1 = "5122590653:AAHxT90EEDOOQoNupWdhGPmRPQ9W
                 e.printStackTrace();
             }
         }
+        else if(message_text.equals("test")) {
 
-        // here goes the condition for showing the right menu keyboard based on the user type
-        message = MenuKeyboard.SendMainKeyboardMenu(update);
+
+            message.setChatId(update.getMessage().getChatId().toString());
+            message.setText("Apri in browser");
+
+            InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+                List < List < InlineKeyboardButton >> rowsInline = new ArrayList < > ();
+                List <InlineKeyboardButton> rowInline = new ArrayList < > ();
+
+            InlineKeyboardButton cc =   new InlineKeyboardButton();
+
+                cc.setText("Open Browser");
+                cc.setUrl("https://tomasmali.it");
+
+                rowInline.add(cc);
+                rowsInline.add(rowInline);
+                markupInline.setKeyboard(rowsInline);
+            message.setReplyMarkup(markupInline);
+
+
+
+        }
+
 
         try {
             execute(message); // Sending our message object to user
